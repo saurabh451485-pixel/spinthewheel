@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cotton Nest | Spin & Win</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #fff8f0, #fceee3);
+      text-align: center;
+      padding: 30px;
+      color: #4a3f35;
+    }
+
+    .logo img {
+      max-width: 160px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      color: #7a5c4f;
+      margin-bottom: 10px;
+    }
+
+    .wheel-wrapper {
+      position: relative;
+      width: 300px;
+      margin: 0 auto;
+    }
+
+    .pointer {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 20px solid #d2691e;
+      z-index: 10;
+    }
+
+    svg {
+      display: block;
+      transition: transform 4s ease-out;
+    }
+
+    .spin-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #d2691e;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: #7a5c4f;
+    }
+  </style>
+</head>
+<body>
+
+<div class="logo">
+  <img src="your-logo-path.png" alt="Cotton Nest Logo">
+</div>
+
+<h2>🎉 Spin & Win with Cotton Nest</h2>
+
+<div class="wheel-wrapper">
+  <div class="pointer"></div>
+  <svg id="wheel" width="300" height="300" viewBox="0 0 300 300">
+    <g transform="translate(150,150)">
+      <g id="segments"></g>
+      <circle r="30" fill="#fff8f0" stroke="#d2691e" stroke-width="2"/>
+      <text x="0" y="5" text-anchor="middle" font-size="12" fill="#7a5c4f">Spin</text>
+    </g>
+  </svg>
+</div>
+
+<button class="spin-btn" onclick="spinWheel()">Spin Now</button>
+<div class="result" id="resultText"></div>
+
+<script>
+  const rewards = ["₹30", "₹40", "₹50", "₹60", "₹70", "₹100"];
+  const segmentCount = rewards.length;
+  const segmentAngle = 360 / segmentCount;
+  const wheelGroup = document.getElementById("segments");
+  const wheel = document.getElementById("wheel");
+  const resultText = document.getElementById("resultText");
+  const STORAGE_KEY = "cottonNestSpinReward";
+
+  // Build SVG segments and labels
+  rewards.forEach((reward, i) => {
+    const startAngle = i * segmentAngle;
+    const endAngle = startAngle + segmentAngle;
+    const largeArc = segmentAngle > 180 ? 1 : 0;
+
+    const x1 = 140 * Math.cos((startAngle * Math.PI) / 180);
+    const y1 = 140 * Math.sin((startAngle * Math.PI) / 180);
+    const x2 = 140 * Math.cos((endAngle * Math.PI) / 180);
+    const y2 = 140 * Math.sin((endAngle * Math.PI) / 180);
+
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", `M0,0 L${x1},${y1} A140,140 0 ${largeArc},1 ${x2},${y2} Z`);
+    path.setAttribute("fill", i % 2 === 0 ? "#fceee3" : "#fff8f0");
+    path.setAttribute("stroke", "#d2691e");
+    path.setAttribute("stroke-width", "1");
+    wheelGroup.appendChild(path);
+
+    const labelAngle = (startAngle + segmentAngle / 2) * (Math.PI / 180);
+    const lx = 90 * Math.cos(labelAngle);
+    const ly = 90 * Math.sin(labelAngle);
+
+    const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    label.setAttribute("x", lx);
+    label.setAttribute("y", ly);
+    label.setAttribute("text-anchor", "middle");
+    label.setAttribute("dominant-baseline", "middle");
+    label.setAttribute("font-size", "12");
+    label.setAttribute("fill", "#7a5c4f");
+    label.textContent = reward;
+    wheelGroup.appendChild(label);
+  });
+
+  // Spin logic
+  function spinWheel() {
+    let storedIndex = localStorage.getItem(STORAGE_KEY);
+
+    if (!storedIndex) {
+      storedIndex = Math.floor(Math.random() * segmentCount);
+      localStorage.setItem(STORAGE_KEY, storedIndex);
+    }
+
+    const angle = 360 * 5 + storedIndex * segmentAngle;
+    wheel.style.transform = `rotate(${angle}deg)`;
+
+    setTimeout(() => {
+      resultText.textContent = `🎉 You won ${rewards[storedIndex]} OFF on your next Cotton Nest order!`;
+    }, 4000);
+  }
+
+  // Show result if already stored
+  const savedIndex = localStorage.getItem(STORAGE_KEY);
+  if (savedIndex !== null) {
+    resultText.textContent = `🎉 You won ${rewards[savedIndex]} OFF on your next Cotton Nest order!`;
+  }
+</script>
+
+</body>
+</html>
