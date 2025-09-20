@@ -150,7 +150,8 @@
       localStorage.setItem(STORAGE_KEY, storedIndex);
     }
 
-  const angle = 360 * 5 + (360 - (storedIndex * segmentAngle + segmentAngle / 2)) - 30;
+  const angle = 360 * 5 + (360 - ((storedIndex + 1) * segmentAngle - segmentAngle / 2));
+
 
 
     wheel.style.transform = `rotate(${angle}deg)`;
@@ -217,5 +218,6 @@
 
 </body>
 </html>
+
 
 
