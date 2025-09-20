@@ -11,6 +11,7 @@
       text-align: center;
       padding: 30px;
       color: #4a3f35;
+      overflow-x: hidden;
     }
 
     .logo img {
@@ -65,9 +66,19 @@
       font-size: 1.2rem;
       color: #7a5c4f;
     }
+
+    canvas#confetti {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 999;
+    }
   </style>
 </head>
 <body>
+
+<canvas id="confetti"></canvas>
 
 <div class="logo">
   <img src="your-logo-path.png" alt="Cotton Nest Logo">
@@ -131,7 +142,6 @@
     wheelGroup.appendChild(label);
   });
 
-  // Spin logic
   function spinWheel() {
     let storedIndex = localStorage.getItem(STORAGE_KEY);
 
@@ -145,13 +155,61 @@
 
     setTimeout(() => {
       resultText.textContent = `🎉 You won ${rewards[storedIndex]} OFF on your next Cotton Nest order!`;
+      launchConfetti();
     }, 4000);
   }
 
-  // Show result if already stored
   const savedIndex = localStorage.getItem(STORAGE_KEY);
   if (savedIndex !== null) {
     resultText.textContent = `🎉 You won ${rewards[savedIndex]} OFF on your next Cotton Nest order!`;
+  }
+
+  // Confetti animation
+  function launchConfetti() {
+    const canvas = document.getElementById("confetti");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const confetti = [];
+    for (let i = 0; i < 150; i++) {
+      confetti.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        r: Math.random() * 6 + 4,
+        d: Math.random() * 10 + 5,
+        color: ["#d2691e", "#fceee3", "#fff8f0"][Math.floor(Math.random() * 3)],
+        tilt: Math.random() * 10 - 5
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      confetti.forEach(c => {
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+        ctx.fillStyle = c.color;
+        ctx.fill();
+      });
+      update();
+    }
+
+    function update() {
+      confetti.forEach(c => {
+        c.y += c.d;
+        c.x += Math.sin(c.tilt);
+        if (c.y > canvas.height) {
+          c.y = -10;
+          c.x = Math.random() * canvas.width;
+        }
+      });
+    }
+
+    let confettiInterval = setInterval(draw, 30);
+    setTimeout(() => {
+      clearInterval(confettiInterval);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }, 5000);
   }
 </script>
 
